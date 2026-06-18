@@ -1,0 +1,183 @@
+<style>
+  .intro { max-width: 860px; margin-bottom: 20px; }
+  .intro p { color: #5b6470; line-height: 1.55; }
+  .shell {
+    overflow: hidden;
+    border: 1px solid #d8dde2;
+    border-radius: 6px;
+    background: #f5f7f8;
+    box-shadow: 0 14px 34px rgba(26, 37, 44, .12);
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    color: white;
+    background: #20373a;
+  }
+  .brand { font-size: 16px; font-weight: 780; }
+  .date { color: #c8d5d4; font-size: 12px; }
+  .dashboard { padding: 18px; color: #1f2933; }
+  .summary {
+    display: grid;
+    grid-template-columns: 1.45fr repeat(3, .55fr);
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .urgent, .stat, .panel {
+    border: 1px solid #dce1e5;
+    background: white;
+  }
+  .urgent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 14px;
+    border-left: 5px solid #bd463a;
+  }
+  .urgent strong { display: block; font-size: 14px; }
+  .urgent span { display: block; margin-top: 3px; color: #707982; font-size: 11px; }
+  .badge {
+    flex: 0 0 auto;
+    padding: 4px 7px;
+    border-radius: 3px;
+    color: #8e241d;
+    background: #f8dedb;
+    font-size: 9px;
+    font-weight: 750;
+    text-transform: uppercase;
+  }
+  .stat { padding: 10px; }
+  .stat span { display: block; color: #727c85; font-size: 10px; }
+  .stat b { display: block; margin: 3px 0 7px; font-size: 16px; }
+  .bar { height: 5px; overflow: hidden; background: #e5e9ec; }
+  .fill { height: 100%; background: #347973; }
+  .main {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(230px, .65fr);
+    gap: 12px;
+  }
+  .panel { padding: 13px; }
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+  .panel h3 { margin: 0; font-size: 13px; }
+  .panel-head small { color: #75808a; }
+  .task {
+    display: grid;
+    grid-template-columns: 18px 1fr auto;
+    gap: 8px;
+    align-items: start;
+    padding: 10px 0;
+    border-top: 1px solid #e7eaed;
+  }
+  .task:first-of-type { border-top: 0; }
+  .check { width: 14px; height: 14px; margin-top: 2px; border: 1.5px solid #78838d; border-radius: 2px; }
+  .task b { display: block; font-size: 12px; }
+  .task p { margin: 2px 0 0; color: #6e7882; font-size: 10px; }
+  .kind { padding: 3px 6px; border-radius: 3px; color: #46605f; background: #e1eeec; font-size: 9px; }
+  .kind.write { color: #715116; background: #f5eacb; }
+  .kind.vocab { color: #69486a; background: #eee3ef; }
+  .section-title {
+    margin: 14px 0 4px;
+    color: #7b858e;
+    font-size: 9px;
+    font-weight: 750;
+    text-transform: uppercase;
+  }
+  .side-row { padding: 9px 0; border-top: 1px solid #e7eaed; }
+  .side-row:first-of-type { border-top: 0; }
+  .side-row b { display: block; font-size: 11px; }
+  .side-row span { color: #737e87; font-size: 10px; }
+  .older {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 1px dashed #cfd5da;
+    color: #65707a;
+    background: #fafbfb;
+    font-size: 11px;
+  }
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .choice {
+    padding: 10px 14px;
+    border: 1px solid #b9c1c7;
+    border-radius: 5px;
+    cursor: pointer;
+    background: white;
+  }
+  .choice.primary { color: white; border-color: #2e6f6b; background: #2e6f6b; }
+  @media (max-width: 820px) {
+    .summary { grid-template-columns: 1fr 1fr 1fr; }
+    .urgent { grid-column: 1 / -1; }
+    .main { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="intro">
+  <h1>Command Center: proposed final design</h1>
+  <p>This is the dashboard I will build. It opens with the single most important obligation, then gives you a short ranked queue. Completed checkboxes persist in this browser, while the source snapshot remains easy for us to update together.</p>
+</div>
+
+<div class="shell">
+  <div class="topbar">
+    <span class="brand">Academic English Command Center</span>
+    <span class="date">Updated 18 June 2026 · Lecture 7 tonight</span>
+  </div>
+  <div class="dashboard">
+    <div class="summary">
+      <div class="urgent">
+        <div><strong>Prepare Lecture 7</strong><span>Thursday 18 June · Prep 18:45 · Class 19:30-22:00 · Zoom details not captured</span></div>
+        <i class="badge">Tonight</i>
+      </div>
+      <div class="stat"><span>Reading</span><b>18 / 27</b><div class="bar"><div class="fill" style="width:67%"></div></div></div>
+      <div class="stat"><span>Writing</span><b>7 current</b><div class="bar"><div class="fill" style="width:64%"></div></div></div>
+      <div class="stat"><span>Vocabulary</span><b>5 current</b><div class="bar"><div class="fill" style="width:60%"></div></div></div>
+    </div>
+
+    <div class="main">
+      <div class="panel">
+        <div class="panel-head"><h3>Next actions</h3><small>Work top to bottom</small></div>
+        <div class="task"><i class="check"></i><div><b>Lecture 7 preparation</b><p>Pronouns, parallel structure, comma, semicolon/colon, and Law &amp; Crimes vocabulary before class.</p></div><span class="kind write">Class</span></div>
+        <div class="task"><i class="check"></i><div><b>Homework - Lecture 6</b><p>Three Google Classroom forms: complements/phrases/clauses/sentences, glossary usage, and pronoun usage.</p></div><span class="kind write">Submit</span></div>
+        <div class="task"><i class="check"></i><div><b>Reading 26: El Nino 2026</b><p>Newest current article: article, bilingual vocabulary, exercises, and IELTS reading practice.</p></div><span class="kind">Reading</span></div>
+        <div class="task"><i class="check"></i><div><b>Reading 25: No to GMO</b><p>Article, audio, vocabulary, exercises, and answer key.</p></div><span class="kind">Reading</span></div>
+        <div class="task"><i class="check"></i><div><b>Reading 24: mpox</b><p>Article, audio, teacher vocabulary, and vocabulary exercises.</p></div><span class="kind">Reading</span></div>
+        <div class="task"><i class="check"></i><div><b>Reading 23: gaokao</b><p>Article, teacher vocabulary, exercises, and IELTS reading with answers.</p></div><span class="kind">Reading</span></div>
+        <div class="task"><i class="check"></i><div><b>Reading 18: Causes of Cancer</b><p>Read, review vocabulary, complete reading and vocabulary exercises.</p></div><span class="kind">Reading</span></div>
+        <div class="task"><i class="check"></i><div><b>Sentence Problems: Practices 12-15</b><p>Fragments, choppy sentences, run-ons, and comma splices.</p></div><span class="kind write">Writing</span></div>
+        <div class="task"><i class="check"></i><div><b>Health &amp; Medicine part 1</b><p>Study the vocabulary reference and complete its exercise.</p></div><span class="kind vocab">Vocabulary</span></div>
+        <div class="task"><i class="check"></i><div><b>Reading 19: Cities used to sprawl</b><p>Start after Reading 18 is fully checked off.</p></div><span class="kind">Reading</span></div>
+        <div class="section-title">Then continue</div>
+        <div class="task"><i class="check"></i><div><b>Reading 20: Business - Steve Jobs</b><p>Reading comprehension plus the shared vocabulary analysis.</p></div><span class="kind">Reading</span></div>
+        <div class="task"><i class="check"></i><div><b>Reading 21: Will the Next Steve Jobs Be From China?</b><p>Article, IELTS reading, comprehension, and vocabulary.</p></div><span class="kind">Reading</span></div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <div class="panel-head"><h3>Current study gaps</h3></div>
+          <div class="side-row"><b>Pronoun reference and case</b><span>Lecture 7 writing</span></div>
+          <div class="side-row"><b>Parallel structure</b><span>Lecture 7 comment exercise</span></div>
+          <div class="side-row"><b>Comma / semicolon / colon</b><span>Punctuation review</span></div>
+          <div class="side-row"><b>Law and Crimes part 2</b><span>Vocabulary</span></div>
+          <div class="side-row"><b>Lecture 6 homework</b><span>3 forms pending</span></div>
+        </div>
+        <div class="older">Older review stays collapsed by default: Readings 18-22, Lecture 5 agreement, sentence variety, health/medicine, capitalization, and legacy writing items.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="actions">
+  <div class="choice" data-choice="revise" onclick="toggleSelect(this)">Revise the design</div>
+  <div class="choice primary" data-choice="approve" onclick="toggleSelect(this)">Approve this design</div>
+</div>

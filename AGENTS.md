@@ -1,5 +1,12 @@
 # AET Agent Onboarding
 
+## Academic English Operations
+
+For work involving the private course tree at
+`D:\OneDrive\01. IELTS\00.Academic English`, read
+`docs/ACADEMIC_ENGLISH_HANDOFF.md` before scanning, downloading, organizing,
+or updating learning trackers.
+
 ## Source of Truth
 
 - `DECISIONS.md` is the locked Phase 1 decision log.
