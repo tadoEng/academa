@@ -28,6 +28,16 @@ Typst must be installed and on `PATH` for PDF builds:
 typst --version
 ```
 
+## Phase 1 Baseline
+
+Run the complete pre-migration regression gate with:
+
+```powershell
+.\scripts\verify-phase1-baseline.ps1
+```
+
+The verifier checks the canonical inputs, full Rust suite, both article builds, the current topic build, 36 deterministic output snapshots, and 3 PDFs after normalizing only Typst's timestamp and instance-ID fields. See [the baseline verification report](docs/baselines/phase1-baseline.md) for the captured commit, tool versions, checksums, exclusions, and post-merge tag.
+
 ## Outputs
 
 Article builds write to `dist/{article_id}/`:

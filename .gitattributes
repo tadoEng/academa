@@ -1,0 +1,2 @@
+# Phase 1 snapshots are byte-level contracts; never normalize or text-diff them.
+tests/baseline/phase1/generated/** binary
