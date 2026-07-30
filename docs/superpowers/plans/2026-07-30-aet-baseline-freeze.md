@@ -26,8 +26,8 @@
 
 ## Task 3: Add regression verification
 
-- [x] Extend the existing round-trip test to compare deterministic outputs with committed snapshots.
-- [x] Add `scripts/verify-phase1-baseline.ps1` to run the full check/test/build sequence and validate input, output, and normalized PDF contracts.
+- [x] Extend the existing round-trip test to generate in a fresh temporary workspace and compare deterministic outputs with committed snapshots.
+- [x] Add `scripts/verify-phase1-baseline.ps1` to fail closed on repository state, tools, manifest authority, full check/test/build execution, output sets, and normalized PDF contracts.
 - [x] Keep `dist/` generated and ignored.
 
 ## Task 4: Prove clean reproduction

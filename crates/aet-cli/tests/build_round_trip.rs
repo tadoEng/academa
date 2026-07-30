@@ -1,17 +1,65 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 fn workspace_root() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../..")
+        .canonicalize()
+        .expect("workspace root should resolve")
 }
 
 fn snapshot_root() -> PathBuf {
     workspace_root().join("tests/baseline/phase1/generated")
 }
 
-fn run_aet(args: &[&str]) {
+struct TestWorkspace {
+    root: PathBuf,
+}
+
+impl TestWorkspace {
+    fn new() -> Self {
+        let unique = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("system clock should be after the Unix epoch")
+            .as_nanos();
+        let root = std::env::temp_dir().join(format!(
+            "aet-phase1-baseline-{}-{unique}",
+            std::process::id()
+        ));
+        std::fs::create_dir(&root).expect("fresh test workspace should be created");
+        copy_directory(
+            &workspace_root().join("data/articles"),
+            &root.join("data/articles"),
+        );
+        Self { root }
+    }
+}
+
+impl Drop for TestWorkspace {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.root);
+    }
+}
+
+fn copy_directory(source: &Path, destination: &Path) {
+    std::fs::create_dir_all(destination).expect("fixture directory should be created");
+    for entry in std::fs::read_dir(source).expect("fixture directory should be readable") {
+        let entry = entry.expect("fixture directory entry should be readable");
+        let source_path = entry.path();
+        let destination_path = destination.join(entry.file_name());
+        if source_path.is_dir() {
+            copy_directory(&source_path, &destination_path);
+        } else {
+            std::fs::copy(&source_path, &destination_path)
+                .expect("fixture file should be copied into the test workspace");
+        }
+    }
+}
+
+fn run_aet(current_dir: &Path, args: &[&str]) {
     let output = Command::new(env!("CARGO_BIN_EXE_aet"))
-        .current_dir(workspace_root())
+        .current_dir(current_dir)
         .args(args)
         .output()
         .expect("aet command should run");
@@ -47,8 +95,8 @@ fn deterministic_files(root: &Path) -> Vec<PathBuf> {
     files
 }
 
-fn assert_matches_snapshot(relative_output: &str) {
-    let generated_root = workspace_root().join("dist").join(relative_output);
+fn assert_matches_snapshot(dist_root: &Path, relative_output: &str) {
+    let generated_root = dist_root.join(relative_output);
     let expected_root = snapshot_root().join(relative_output);
     let generated_files = deterministic_files(&generated_root);
     let expected_files = deterministic_files(&expected_root);
@@ -74,13 +122,14 @@ fn assert_matches_snapshot(relative_output: &str) {
 
 #[test]
 fn build_round_trip_creates_outputs_for_both_phase1_fixtures() {
-    let root = workspace_root();
+    let test_workspace = TestWorkspace::new();
+    let dist_root = test_workspace.root.join("dist");
     for article in ["vietnam-two-child-policy", "dengue-bangladesh"] {
         let article_path = format!("data/articles/{article}");
-        run_aet(&["validate", &article_path]);
-        run_aet(&["build", &article_path]);
+        run_aet(&test_workspace.root, &["validate", &article_path]);
+        run_aet(&test_workspace.root, &["build", &article_path]);
 
-        let out_dir = root.join("dist").join(article);
+        let out_dir = dist_root.join(article);
         for file in [
             "vocabulary.pdf",
             "anki-basic.tsv",
@@ -94,11 +143,11 @@ fn build_round_trip_creates_outputs_for_both_phase1_fixtures() {
             );
         }
 
-        assert_matches_snapshot(article);
+        assert_matches_snapshot(&dist_root, article);
     }
 
-    run_aet(&["build-topic", "health-medicine"]);
-    let topic_output = root.join("dist/topics/health-medicine");
+    run_aet(&test_workspace.root, &["build-topic", "health-medicine"]);
+    let topic_output = dist_root.join("topics/health-medicine");
     assert!(topic_output.join("vocabulary.pdf").is_file());
-    assert_matches_snapshot("topics/health-medicine");
+    assert_matches_snapshot(&dist_root, "topics/health-medicine");
 }

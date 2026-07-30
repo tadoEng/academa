@@ -40,6 +40,28 @@ function Invoke-Checked {
     }
 }
 
+function Get-CheckedOutput {
+    param(
+        [Parameter(Mandatory)]
+        [string]$FilePath,
+        [Parameter(Mandatory)]
+        [string[]]$ArgumentList
+    )
+
+    $output = @(& $FilePath @ArgumentList 2>&1)
+    if ($LASTEXITCODE -ne 0) {
+        throw "Command failed with exit code ${LASTEXITCODE}: $FilePath $($ArgumentList -join ' ')`n$($output -join "`n")"
+    }
+    ($output -join "`n").TrimEnd()
+}
+
+function Assert-GitClean {
+    $status = Get-CheckedOutput git @('status', '--short', '--untracked-files=all')
+    if ($status.Length -gt 0) {
+        throw "Repository has tracked or untracked changes outside ignored build output:`n$status"
+    }
+}
+
 function Get-Sha256 {
     param([Parameter(Mandatory)][string]$Path)
 
@@ -63,7 +85,11 @@ function Replace-RequiredPdfField {
         throw "Expected exactly one $Label field, found $($matches.Count)."
     }
 
-    [regex]::Replace($Text, $Pattern, $Replacement)
+    $normalized = [regex]::Replace($Text, $Pattern, $Replacement)
+    if ($normalized.Length -ne $Text.Length) {
+        throw "$Label normalization changed PDF byte length."
+    }
+    $normalized
 }
 
 function Get-NormalizedPdfSha256 {
@@ -82,16 +108,44 @@ function Get-NormalizedPdfSha256 {
     [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes)).ToLowerInvariant()
 }
 
-function Get-RelativeFiles {
+function Assert-RelativeManifestPath {
     param(
         [Parameter(Mandatory)]
-        [string]$Root,
-        [switch]$ExcludePdf
+        [string]$Label,
+        [Parameter(Mandatory)]
+        [string]$Path
     )
+
+    $segments = $Path.Replace('\', '/').Split('/')
+    if ([IO.Path]::IsPathRooted($Path) -or $segments -contains '..') {
+        throw "$Label must be a repository-relative path: $Path"
+    }
+}
+
+function Assert-UniquePaths {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Label,
+        [Parameter(Mandatory)]
+        [string[]]$Paths
+    )
+
+    $duplicates = @(
+        $Paths |
+            Group-Object |
+            Where-Object Count -gt 1 |
+            ForEach-Object Name
+    )
+    if ($duplicates.Count -gt 0) {
+        throw "$Label contains duplicate declarations: $($duplicates -join ', ')"
+    }
+}
+
+function Get-RelativeFiles {
+    param([Parameter(Mandatory)][string]$Root)
 
     @(
         Get-ChildItem -LiteralPath $Root -Recurse -File |
-            Where-Object { -not $ExcludePdf -or $_.Extension -ne '.pdf' } |
             ForEach-Object {
                 $_.FullName.Substring($Root.Length + 1).Replace('\', '/')
             } |
@@ -99,11 +153,30 @@ function Get-RelativeFiles {
     )
 }
 
+function Assert-NoMachinePaths {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Root,
+        [Parameter(Mandatory)]
+        [string[]]$RelativeFiles
+    )
+
+    $absolutePathPattern = '(?i)((?<![a-z0-9])[a-z]:[\\/]|\\\\[^\\]|/(Users|home|tmp)/)'
+    foreach ($relative in $RelativeFiles) {
+        $path = Join-Path $Root $relative
+        $content = [IO.File]::ReadAllText($path)
+        if ($content -match $absolutePathPattern) {
+            throw "Snapshot contains a machine-specific absolute path: $relative"
+        }
+    }
+}
+
 Push-Location $repoRoot
 try {
     Write-Host 'AET Phase 1 baseline verification' -ForegroundColor Green
     Write-Host "Pre-change commit: $($manifest.baseline.pre_change_commit)"
     Write-Host "Pre-change tree:   $($manifest.baseline.pre_change_tree)"
+    Assert-GitClean
 
     foreach ($command in 'git', 'rustc', 'cargo', 'typst') {
         if ($null -eq (Get-Command $command -ErrorAction SilentlyContinue)) {
@@ -111,12 +184,15 @@ try {
         }
     }
 
-    Assert-Equal 'rustc version' $manifest.tool_versions.rustc ((& rustc --version) -join "`n")
-    Assert-Equal 'cargo version' $manifest.tool_versions.cargo ((& cargo --version) -join "`n")
-    Assert-Equal 'Typst version' $manifest.tool_versions.typst ((& typst --version) -join "`n")
+    Assert-Equal 'rustc version' $manifest.tool_versions.rustc (Get-CheckedOutput rustc @('--version'))
+    Assert-Equal 'cargo version' $manifest.tool_versions.cargo (Get-CheckedOutput cargo @('--version'))
+    Assert-Equal 'Typst version' $manifest.tool_versions.typst (Get-CheckedOutput typst @('--version'))
 
     Write-Host "`nVerifying canonical fixture inputs..." -ForegroundColor Green
+    $fixturePaths = @($manifest.fixture_inputs | ForEach-Object { [string]$_.path })
+    Assert-UniquePaths 'fixture_inputs' $fixturePaths
     foreach ($fixture in $manifest.fixture_inputs) {
+        Assert-RelativeManifestPath 'fixture input' ([string]$fixture.path)
         $path = Join-Path $repoRoot ([string]$fixture.path)
         if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
             throw "Canonical fixture input is missing: $($fixture.path)"
@@ -131,13 +207,23 @@ try {
             Where-Object { $_.Trim().Length -gt 0 }
     )
     Assert-Equal 'snapshot checksum entry count' ([string]$manifest.deterministic_outputs.file_count) ([string]$checksumEntries.Count)
+    $snapshotPrefix = ([string]$manifest.deterministic_outputs.snapshot_root).Replace('\', '/').TrimEnd('/') + '/'
+    $declaredSnapshotFiles = New-Object System.Collections.Generic.List[string]
     foreach ($line in $checksumEntries) {
-        if ($line -notmatch '^(?<hash>[0-9a-f]{64})  (?<path>.+)$') {
+        $match = [regex]::Match($line, '^(?<hash>[0-9a-f]{64})  (?<path>.+)$')
+        if (-not $match.Success) {
             throw "Invalid snapshot checksum line: $line"
         }
-        $snapshotPath = Join-Path $repoRoot $Matches.path
-        Assert-Equal "$($Matches.path) snapshot SHA-256" $Matches.hash (Get-Sha256 $snapshotPath)
+        $declaredPath = $match.Groups['path'].Value.Replace('\', '/')
+        Assert-RelativeManifestPath 'snapshot checksum path' $declaredPath
+        if (-not $declaredPath.StartsWith($snapshotPrefix, [StringComparison]::Ordinal)) {
+            throw "Snapshot checksum path is outside snapshot_root: $declaredPath"
+        }
+        $declaredSnapshotFiles.Add($declaredPath.Substring($snapshotPrefix.Length))
+        $snapshotPath = Join-Path $repoRoot $declaredPath
+        Assert-Equal "$declaredPath snapshot SHA-256" $match.Groups['hash'].Value (Get-Sha256 $snapshotPath)
     }
+    Assert-UniquePaths 'snapshot checksums' @($declaredSnapshotFiles)
 
     Invoke-Checked cargo @('check', '--workspace', '--target-dir', '.codex-target')
     Invoke-Checked cargo @('test', '--workspace', '--target-dir', '.codex-target')
@@ -158,10 +244,30 @@ try {
     Write-Host "`nComparing deterministic generated outputs..." -ForegroundColor Green
     $snapshotRoot = Join-Path $repoRoot ([string]$manifest.deterministic_outputs.snapshot_root)
     $snapshotFiles = Get-RelativeFiles $snapshotRoot
-    $generatedFiles = Get-RelativeFiles $dist -ExcludePdf
-    $fileSetDifference = @(Compare-Object -ReferenceObject $snapshotFiles -DifferenceObject $generatedFiles)
+    $snapshotDeclarationDifference = @(Compare-Object -ReferenceObject $snapshotFiles -DifferenceObject @($declaredSnapshotFiles | Sort-Object))
+    if ($snapshotDeclarationDifference.Count -gt 0) {
+        throw "Snapshot tree and checksum declarations disagree:`n$($snapshotDeclarationDifference | Out-String)"
+    }
+    Assert-NoMachinePaths $snapshotRoot $snapshotFiles
+
+    $pdfRelativePaths = @(
+        $manifest.pdf_outputs |
+            ForEach-Object {
+                $path = ([string]$_.path).Replace('\', '/')
+                Assert-RelativeManifestPath 'PDF output' $path
+                if (-not $path.StartsWith('dist/', [StringComparison]::Ordinal)) {
+                    throw "PDF output must be declared beneath dist/: $path"
+                }
+                $path.Substring('dist/'.Length)
+            }
+    )
+    Assert-UniquePaths 'pdf_outputs' $pdfRelativePaths
+    $declaredGeneratedFiles = @($snapshotFiles + $pdfRelativePaths | Sort-Object)
+    Assert-UniquePaths 'all protected outputs' $declaredGeneratedFiles
+    $generatedFiles = Get-RelativeFiles $dist
+    $fileSetDifference = @(Compare-Object -ReferenceObject $declaredGeneratedFiles -DifferenceObject $generatedFiles)
     if ($fileSetDifference.Count -gt 0) {
-        throw "Deterministic generated file set changed:`n$($fileSetDifference | Out-String)"
+        throw "Generated file set differs from the manifest authority:`n$($fileSetDifference | Out-String)"
     }
     foreach ($relative in $snapshotFiles) {
         $expected = Join-Path $snapshotRoot $relative
@@ -179,6 +285,7 @@ try {
         Assert-Equal "$($pdf.path) normalized SHA-256" ([string]$pdf.normalized_sha256) (Get-NormalizedPdfSha256 $path)
     }
 
+    Assert-GitClean
     Write-Host "`nPASS: AET Phase 1 baseline reproduced exactly." -ForegroundColor Green
     Write-Host "Deterministic files: $($snapshotFiles.Count)"
     Write-Host "Normalized PDFs:     $($manifest.pdf_outputs.Count)"
