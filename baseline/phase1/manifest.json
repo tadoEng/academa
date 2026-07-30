@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "baseline": {
+    "captured_on": "2026-07-30",
+    "pre_change_commit": "2067ce540ac0921e4e5b9342fbb6b3c839caba85",
+    "pre_change_tree": "127b5d3e35019ff576013e830a79196527fc6a4e",
+    "tag_after_merge": "aet-v0.1-vocabulary-pipeline"
+  },
+  "tool_versions": {
+    "rustup": "rustup 1.29.0 (28d1352db 2026-03-05)",
+    "rustc": "rustc 1.94.1 (e408947bf 2026-03-25)",
+    "cargo": "cargo 1.94.1 (29ea6fb6a 2026-03-24)",
+    "typst": "typst 0.14.2 (b33de9de)",
+    "git": "git version 2.52.0.windows.1",
+    "powershell": "7.6.4",
+    "os": "Microsoft Windows NT 10.0.26200.0"
+  },
+  "fixture_inputs": [
+    {
+      "path": "data/articles/dengue-bangladesh/article.toml",
+      "bytes": 562,
+      "sha256": "9bb22ef57bb09ace93c69b0b45d10e970a8bbc45a5fb2fa3140e76e9d817aab1"
+    },
+    {
+      "path": "data/articles/dengue-bangladesh/vocab.csv",
+      "bytes": 43932,
+      "sha256": "9ceedd53e1fe458519adc70baaac4e66de038896b6f40b969e1832e9d525cece"
+    },
+    {
+      "path": "data/articles/vietnam-two-child-policy/article.toml",
+      "bytes": 579,
+      "sha256": "4e42baad6fd9c8d1b8c32965484b8f72f96545670ee6ec60338593642a720eb9"
+    },
+    {
+      "path": "data/articles/vietnam-two-child-policy/vocab.csv",
+      "bytes": 38109,
+      "sha256": "c0d08945b90fc889d4f8b7bb01f621d1ecdeac155528e0e95e35da98a4bcd2ac"
+    }
+  ],
+  "deterministic_outputs": {
+    "snapshot_root": "tests/baseline/phase1/generated",
+    "checksum_file": "baseline/phase1/snapshot-checksums.sha256",
+    "file_count": 36
+  },
+  "pdf_outputs": [
+    {
+      "path": "dist/vietnam-two-child-policy/vocabulary.pdf",
+      "bytes": 195986,
+      "normalized_sha256": "27f1e4b2b71bf1b7315dedf51ed532eea80786f57c4bc7f682ed2b23818a5f7c",
+      "title": "Facing a Demographic Shift, Vietnam Abolishes Two-Child Policy",
+      "pages": 4,
+      "page_size": "595.276 x 841.89 pts (A4)",
+      "author": "AET",
+      "creator": "Typst 0.14.2",
+      "pdf_version": "1.7"
+    },
+    {
+      "path": "dist/dengue-bangladesh/vocabulary.pdf",
+      "bytes": 264910,
+      "normalized_sha256": "d13d3a0ab6927633dbc9819401bbaaae007890e6a51a08d67ec0c86c98a17294",
+      "title": "Deadly Dengue Fever Outbreak in Bangladesh Strains Scarce Resources",
+      "pages": 6,
+      "page_size": "595.276 x 841.89 pts (A4)",
+      "author": "AET",
+      "creator": "Typst 0.14.2",
+      "pdf_version": "1.7"
+    },
+    {
+      "path": "dist/topics/health-medicine/vocabulary.pdf",
+      "bytes": 265552,
+      "normalized_sha256": "b99f9ad79b4c1c3f9cb771f8666c6dc58a3282129a5d9667c390dc89cf7ef07f",
+      "title": "Topic Bank: health-medicine",
+      "pages": 6,
+      "page_size": "595.276 x 841.89 pts (A4)",
+      "author": "AET",
+      "creator": "Typst 0.14.2",
+      "pdf_version": "1.7"
+    }
+  ],
+  "pdf_normalization": {
+    "reason": "Typst 0.14.2 writes build-time metadata and a fresh instance identifier into otherwise stable PDFs.",
+    "excluded_fields": [
+      "Info.ModDate",
+      "Info.CreationDate",
+      "XMP.xmp:ModifyDate",
+      "XMP.xmp:CreateDate",
+      "XMP.xmpMM:InstanceID",
+      "Trailer.ID[1]"
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+<div class="aet-card" data-aet-mode="basic">
+  <div class="aet-kicker">AET Basic Recall</div>
+  <div class="aet-prompt">{{Front}}</div>
+  <div class="aet-instruction">Recall the meaning in English or Vietnamese before revealing the answer.</div>
+
+  <label class="aet-label" for="aet-open-answer">Your recall attempt</label>
+  <textarea id="aet-open-answer" class="aet-open-answer" rows="4" placeholder="Write the meaning from memory. A short paraphrase is enough."></textarea>
+
+  <div class="aet-footer-note">Then press Show Answer and compare your attempt with the reference.</div>
+</div>
+
+<script>
+(function () {
+  var key = "aet-basic-" + document.querySelector(".aet-prompt").textContent.trim();
+  var box = document.getElementById("aet-open-answer");
+  box.value = sessionStorage.getItem(key) || "";
+  box.addEventListener("input", function () {
+    sessionStorage.setItem(key, box.value);
+  });
+})();
+</script>

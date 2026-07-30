@@ -1,0 +1,29 @@
+<div class="aet-card" data-aet-mode="basic">
+  <div class="aet-kicker">AET Basic Recall</div>
+  <div class="aet-prompt">{{Front}}</div>
+
+  <section class="aet-panel aet-attempt-panel">
+    <div class="aet-panel-title">Your attempt</div>
+    <div id="aet-saved-attempt" class="aet-attempt-text">No typed attempt captured.</div>
+  </section>
+
+  <section class="aet-panel aet-answer-panel">
+    <div class="aet-panel-title">Reference answer</div>
+    <div class="aet-answer">{{Back}}</div>
+  </section>
+
+  <details class="aet-details" open>
+    <summary>Source, pattern, and topics</summary>
+    <div class="aet-extra">{{Extra}}</div>
+  </details>
+</div>
+
+<script>
+(function () {
+  var key = "aet-basic-" + document.querySelector(".aet-prompt").textContent.trim();
+  var attempt = sessionStorage.getItem(key);
+  if (attempt && attempt.trim()) {
+    document.getElementById("aet-saved-attempt").textContent = attempt;
+  }
+})();
+</script>

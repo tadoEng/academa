@@ -1,0 +1,24 @@
+<div class="aet-card" data-aet-mode="production">
+  <div class="aet-kicker">AET Production Sprint</div>
+  <div class="aet-prompt">{{Front}}</div>
+  <div class="aet-instruction">Write one sentence you could realistically use in IELTS Writing or Speaking.</div>
+
+  <label class="aet-label" for="aet-open-answer">Your sentence</label>
+  <textarea id="aet-open-answer" class="aet-open-answer" rows="5" placeholder="Try a complete sentence before checking the reference."></textarea>
+
+  <details class="aet-details aet-subtle-details">
+    <summary>Need a nudge?</summary>
+    <div class="aet-extra">{{Extra}}</div>
+  </details>
+</div>
+
+<script>
+(function () {
+  var key = "aet-production-" + document.querySelector(".aet-prompt").textContent.trim();
+  var box = document.getElementById("aet-open-answer");
+  box.value = sessionStorage.getItem(key) || "";
+  box.addEventListener("input", function () {
+    sessionStorage.setItem(key, box.value);
+  });
+})();
+</script>

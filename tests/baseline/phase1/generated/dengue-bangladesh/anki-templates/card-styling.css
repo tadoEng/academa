@@ -1,0 +1,135 @@
+.card {
+  margin: 0;
+  padding: 0;
+  font-family: Aptos, "Segoe UI", "Noto Sans", sans-serif;
+  font-size: 20px;
+  text-align: center;
+  color: #f4f1e8;
+  background: #252525;
+}
+
+.aet-card {
+  max-width: 920px;
+  margin: 28px auto;
+  padding: 28px;
+  line-height: 1.5;
+}
+
+.aet-kicker {
+  display: inline-block;
+  margin-bottom: 18px;
+  padding: 4px 10px;
+  border: 1px solid #8f866f;
+  border-radius: 999px;
+  color: #d9c991;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.aet-prompt {
+  margin: 0 auto 18px;
+  max-width: 820px;
+  font-size: 28px;
+  font-weight: 650;
+}
+
+.aet-instruction,
+.aet-footer-note {
+  margin: 12px auto;
+  max-width: 720px;
+  color: #c8c2b4;
+  font-size: 16px;
+}
+
+.aet-label {
+  display: block;
+  margin: 24px 0 8px;
+  color: #d9c991;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.aet-open-answer,
+input[type="text"] {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 820px;
+  padding: 16px 18px;
+  border: 1px solid #7f7869;
+  border-radius: 8px;
+  color: #f4f1e8;
+  background: #1d1d1d;
+  font-size: 22px;
+  text-align: left;
+  outline: none;
+}
+
+input[type="text"] {
+  text-align: center;
+}
+
+.aet-open-answer:focus,
+input[type="text"]:focus {
+  border-color: #d9c991;
+  box-shadow: 0 0 0 3px rgba(217, 201, 145, 0.18);
+}
+
+.aet-panel,
+.aet-details {
+  max-width: 820px;
+  margin: 18px auto;
+  padding: 16px 18px;
+  border: 1px solid #625d52;
+  border-radius: 8px;
+  background: #2d2d2b;
+  text-align: left;
+}
+
+.aet-panel-title {
+  margin-bottom: 8px;
+  color: #d9c991;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.aet-attempt-text {
+  white-space: pre-wrap;
+  color: #f4f1e8;
+}
+
+.aet-answer {
+  color: #a7e08f;
+  font-size: 22px;
+}
+
+.aet-extra {
+  color: #ded7c8;
+  font-size: 16px;
+}
+
+.aet-details summary {
+  cursor: pointer;
+  color: #d9c991;
+  font-weight: 700;
+}
+
+.aet-subtle-details {
+  opacity: 0.86;
+}
+
+.typeGood {
+  color: #a7e08f;
+}
+
+.typeBad {
+  color: #ff9b8f;
+}
+
+.typeMissed {
+  color: #d9c991;
+}
+
+code {
+  color: #d9c991;
+}
