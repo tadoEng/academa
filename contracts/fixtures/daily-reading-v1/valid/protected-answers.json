@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "lesson_id": "lesson-community-gardens",
+  "answer_policies": [
+    {
+      "id": "answer-policy-main-idea",
+      "question_id": "question-main-idea",
+      "accepted_option_ids": [
+        "option-local-comfort"
+      ],
+      "scoring": {
+        "max_score": 1
+      },
+      "feedback": {
+        "explanation": "The passage reports a local cooling effect but explicitly limits the claim to local comfort and incomplete citywide evidence.",
+        "evidence_references": [
+          {
+            "paragraph_id": "paragraph-two"
+          }
+        ]
+      },
+      "mistake_tag_id": "mistake-missed-qualifier",
+      "review_policy_id": "review-main-idea-once",
+      "release_policy": "after_commit"
+    }
+  ]
+}
