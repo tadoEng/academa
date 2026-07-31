@@ -79,3 +79,15 @@
 - No learner submissions, outcomes, feedback releases, mistakes, reviews, or persistence.
 - No Axum, database, object storage, TypeScript generation, SvelteKit, or cloud-provider code.
 - No private PDF, full article text, teacher notes, private corrections, or OneDrive paths.
+
+## Independent review corrections — 2026-08-01
+
+- [x] Remove filesystem loading from `academa-content`; fixture tests own temporary file I/O.
+- [x] Move real cross-file validation into the additive `academa-validation` crate.
+- [x] Replace unrestricted provenance text with a validated path-independent reference.
+- [x] Make multi-question error ordering deterministic.
+- [x] Represent the full ordered Daily Reading activity flow, including timer guidance.
+- [x] Add a package-relative asset path and archive-traversal rejection.
+- [x] Require nonblank semantic content and nonempty declared assets.
+- [x] Add Serde round-trip, JSON-order, provenance-path, asset-path, and deterministic-error proofs.
+- [x] Apply the #13 crate README, crate-level Rustdoc, and missing-documentation lint contract.

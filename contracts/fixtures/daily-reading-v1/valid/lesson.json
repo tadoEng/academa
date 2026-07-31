@@ -11,6 +11,7 @@
     }
   ],
   "reading_passage": {
+    "id": "passage-community-gardens",
     "title": "A small experiment in Greenbridge",
     "paragraphs": [
       {
@@ -41,6 +42,12 @@
   ],
   "activities": [
     {
+      "type": "timed_reading",
+      "id": "activity-timed-reading",
+      "passage_id": "passage-community-gardens",
+      "recommended_duration_seconds": 180
+    },
+    {
       "type": "objective_question",
       "id": "activity-main-idea",
       "objective_id": "objective-main-idea",
@@ -60,6 +67,31 @@
           "text": "Shade trees remove the cooling effect of wind."
         }
       ]
+    },
+    {
+      "type": "vocabulary_review",
+      "id": "activity-vocabulary-review",
+      "vocabulary_entry_ids": [
+        "vocabulary-modest",
+        "vocabulary-convert"
+      ]
+    },
+    {
+      "type": "production",
+      "id": "activity-production",
+      "production_prompt_id": "production-qualifier"
+    },
+    {
+      "type": "mistake_classification",
+      "id": "activity-mistake-classification",
+      "mistake_tag_ids": [
+        "mistake-missed-qualifier"
+      ]
+    },
+    {
+      "type": "scheduled_review",
+      "id": "activity-scheduled-review",
+      "review_policy_id": "review-main-idea-once"
     }
   ],
   "production_prompts": [

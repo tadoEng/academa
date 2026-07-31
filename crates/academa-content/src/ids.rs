@@ -91,6 +91,11 @@ logical_id!(
     "objective ID"
 );
 logical_id!(
+    /// Stable reading-passage identity.
+    ReadingPassageId,
+    "reading passage ID"
+);
+logical_id!(
     /// Stable reading-passage paragraph identity.
     ParagraphId,
     "paragraph ID"
@@ -134,6 +139,11 @@ logical_id!(
     /// Stable learner-production prompt identity.
     ProductionPromptId,
     "production prompt ID"
+);
+logical_id!(
+    /// Path-independent provenance identity for a reviewed source.
+    ProvenanceReference,
+    "provenance reference"
 );
 logical_id!(
     /// Stable declared asset identity.

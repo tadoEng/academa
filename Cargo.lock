@@ -13,6 +13,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "academa-validation"
+version = "0.1.0"
+dependencies = [
+ "academa-content",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "aet-anki"
 version = "0.1.0"
 dependencies = [

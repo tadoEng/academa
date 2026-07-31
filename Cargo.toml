@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "crates/academa-content",
+    "crates/academa-validation",
     "crates/aet-core",
     "crates/aet-anki",
     "crates/aet-typst",
