@@ -2,8 +2,9 @@ use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use academa_content::{
-    Activity, LessonContract, LessonManifest, ProtectedAnswers, PublicLesson,
-    compute_content_digest,
+    Activity, AssetDeclaration, AssetDeliveryClassification, AssetId, LessonContract,
+    LessonManifest, MistakeTagId, MistakeTagReference, ProtectedAnswers, PublicLesson,
+    ReviewPolicyId, ReviewPolicyReference, compute_content_digest,
 };
 use academa_validation::{ContractError, validate};
 use serde::de::DeserializeOwned;
@@ -33,6 +34,17 @@ fn load_contract(root: &Path) -> LessonContract {
         manifest: read_json(&root.join("manifest.json")),
         lesson: read_json(&root.join("lesson.json")),
         protected_answers: read_json(&root.join("protected-answers.json")),
+    }
+}
+
+fn asset(id: &str, package_path: &str, sha256: &str) -> AssetDeclaration {
+    AssetDeclaration {
+        id: AssetId::new(id).expect("test asset ID should be valid"),
+        package_path: package_path.to_string(),
+        media_type: "audio/mpeg".to_string(),
+        byte_length: 128,
+        sha256: sha256.to_string(),
+        delivery_classification: AssetDeliveryClassification::LearnerSafe,
     }
 }
 
@@ -153,6 +165,78 @@ fn unsafe_asset_package_path_is_rejected() {
 }
 
 #[test]
+fn duplicate_asset_package_path_is_rejected() {
+    let mut contract = load_contract(&fixture_root());
+    contract.lesson.assets = vec![
+        asset(
+            "asset-audio-a",
+            "assets/reading.mp3",
+            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        ),
+        asset(
+            "asset-audio-b",
+            "assets/reading.mp3",
+            "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        ),
+    ];
+
+    let error = validate(&contract).expect_err("duplicate asset path must be rejected");
+
+    assert!(matches!(
+        error,
+        ContractError::DuplicateAssetPath { ref path } if path == "assets/reading.mp3"
+    ));
+}
+
+#[test]
+fn answer_policy_mistake_tag_must_appear_in_classification_activity() {
+    let mut contract = load_contract(&fixture_root());
+    let alternate_id =
+        MistakeTagId::new("mistake-alternate").expect("alternate mistake-tag ID should be valid");
+    contract.lesson.mistake_tags.push(MistakeTagReference {
+        id: alternate_id.clone(),
+        label: "Alternate valid tag".to_string(),
+    });
+    contract.protected_answers.answer_policies[0].mistake_tag_id = alternate_id;
+
+    let error = validate(&contract)
+        .expect_err("answer-policy mistake tag absent from activity must be rejected");
+
+    assert!(matches!(
+        error,
+        ContractError::PolicyActivityMismatch {
+            reference_kind: "mistake tag",
+            ref reference_id,
+            ..
+        } if reference_id == "mistake-alternate"
+    ));
+}
+
+#[test]
+fn answer_policy_review_policy_must_appear_in_scheduled_review_activity() {
+    let mut contract = load_contract(&fixture_root());
+    let alternate_id = ReviewPolicyId::new("review-alternate")
+        .expect("alternate review-policy ID should be valid");
+    contract.lesson.review_policies.push(ReviewPolicyReference {
+        id: alternate_id.clone(),
+        label: "Alternate valid review".to_string(),
+    });
+    contract.protected_answers.answer_policies[0].review_policy_id = alternate_id;
+
+    let error = validate(&contract)
+        .expect_err("answer-policy review absent from activity must be rejected");
+
+    assert!(matches!(
+        error,
+        ContractError::PolicyActivityMismatch {
+            reference_kind: "review policy",
+            ref reference_id,
+            ..
+        } if reference_id == "review-alternate"
+    ));
+}
+
+#[test]
 fn missing_answer_policy_error_order_is_deterministic() {
     let mut contract = load_contract(&fixture_root());
     let Activity::ObjectiveQuestion { .. } = &contract.lesson.activities[1] else {
@@ -239,6 +323,51 @@ fn semantic_digest_changes_when_protected_feedback_changes() {
         changed
             .computed_content_digest()
             .expect("changed fixture should digest")
+    );
+}
+
+#[test]
+fn semantic_digest_ignores_asset_package_path_rename() {
+    let original = load_contract(&fixture_root());
+    let mut first_path = original.clone();
+    first_path.lesson.assets.push(asset(
+        "asset-reading-audio",
+        "assets/reading-a.mp3",
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    ));
+    let mut renamed_path = first_path.clone();
+    renamed_path.lesson.assets[0].package_path = "assets/reading-b.mp3".to_string();
+
+    assert_eq!(
+        first_path
+            .computed_content_digest()
+            .expect("first asset path should digest"),
+        renamed_path
+            .computed_content_digest()
+            .expect("renamed asset path should digest")
+    );
+}
+
+#[test]
+fn semantic_digest_changes_when_asset_hash_changes() {
+    let original = load_contract(&fixture_root());
+    let mut first_hash = original.clone();
+    first_hash.lesson.assets.push(asset(
+        "asset-reading-audio",
+        "assets/reading.mp3",
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    ));
+    let mut changed_hash = first_hash.clone();
+    changed_hash.lesson.assets[0].sha256 =
+        "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".to_string();
+
+    assert_ne!(
+        first_hash
+            .computed_content_digest()
+            .expect("first asset hash should digest"),
+        changed_hash
+            .computed_content_digest()
+            .expect("changed asset hash should digest")
     );
 }
 

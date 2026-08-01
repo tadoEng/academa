@@ -21,6 +21,14 @@ metadata, and server-issued IDs are absent from the digest input by construction
 Stable IDs and provenance references are lowercase path-independent values. Asset
 declarations, when present, map one stable asset ID to one validated package-relative
 path below `assets/`, byte length, media type, SHA-256 digest, and delivery class.
+Package paths and transport filenames do not enter `content_digest`; the stable asset
+identity, media type, byte length, semantic hash, and delivery class do. Each canonical
+package path may be declared only once.
+
+Every protected answer policy's mistake tag and review policy must appear in the
+ordered mistake-classification and scheduled-review activities. Additional valid
+activity references are allowed for manual or non-scored paths, but an authoritative
+protected mapping may never be absent from the learner flow.
 
 The `invalid/` examples each replace one file from `valid/`:
 

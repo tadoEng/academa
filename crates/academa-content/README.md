@@ -14,8 +14,10 @@ identity.
 - `ProtectedAnswers` carries server-only scoring, feedback, mistake, review, and
   answer-release policy.
 - `LessonContract` groups those three already-decoded surfaces in memory.
-- `compute_content_digest` hashes the canonical typed public and protected semantic
-  content while excluding paths, timestamps, ZIP metadata, and server-issued IDs.
+- `compute_content_digest` hashes an explicit projection of the typed public and
+  protected semantic content. Asset identity, media type, byte length, semantic hash,
+  and delivery classification are included; `package_path` is excluded as transport
+  metadata.
 
 ## Non-goals and dependency policy
 
@@ -41,7 +43,10 @@ fn semantic_identity(contract: &LessonContract) -> String {
 Logical IDs and provenance references are lowercase path-independent identifiers.
 `PublicLesson` and `ProtectedAnswers` are different Rust and JSON types. Serde rejects
 unknown fields so protected keys cannot be silently accepted on the learner-safe
-surface. Schema compatibility is explicit and validated outside this crate.
+surface. Reviewed provenance identity, source kind, rights status, and human-approval
+state are semantic digest inputs because they govern what content is approved for use;
+filesystem paths, archive names, storage keys, ZIP metadata, and publication audit data
+are not. Schema compatibility is explicit and validated outside this crate.
 
 ## Verification
 

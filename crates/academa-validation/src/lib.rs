@@ -100,11 +100,29 @@ pub enum ContractError {
         /// Rejected package path.
         path: String,
     },
+    /// More than one asset declaration targets the same canonical package path.
+    #[error("duplicate asset package path `{path}`")]
+    DuplicateAssetPath {
+        /// Repeated canonical package path.
+        path: String,
+    },
     /// An asset declares an empty byte stream.
     #[error("asset `{asset_id}` must contain at least one byte")]
     InvalidAssetLength {
         /// Empty asset identity.
         asset_id: String,
+    },
+    /// A protected answer policy references behavior absent from the ordered activity flow.
+    #[error(
+        "answer policy `{answer_policy_id}` references {reference_kind} `{reference_id}` absent from the ordered activity flow"
+    )]
+    PolicyActivityMismatch {
+        /// Answer policy containing the inconsistent mapping.
+        answer_policy_id: String,
+        /// Kind of post-answer reference that is missing.
+        reference_kind: &'static str,
+        /// Referenced logical identity absent from the activities.
+        reference_id: String,
     },
     /// Canonical content lacks explicit human approval.
     #[error("reviewed canonical content requires human approval")]
@@ -341,6 +359,8 @@ fn validate_references(contract: &LessonContract) -> Result<(), ContractError> {
     let mut has_production = false;
     let mut has_mistake_classification = false;
     let mut has_scheduled_review = false;
+    let mut activity_mistake_tag_ids = HashSet::new();
+    let mut activity_review_policy_ids = HashSet::new();
     for activity in &contract.lesson.activities {
         match activity {
             Activity::TimedReading {
@@ -457,6 +477,7 @@ fn validate_references(contract: &LessonContract) -> Result<(), ContractError> {
                         tag_id.as_str(),
                         &mistake_tag_ids,
                     )?;
+                    activity_mistake_tag_ids.insert(tag_id.as_str());
                 }
             }
             Activity::ScheduledReview {
@@ -472,6 +493,7 @@ fn validate_references(contract: &LessonContract) -> Result<(), ContractError> {
                     review_policy_id.as_str(),
                     &review_policy_ids,
                 )?;
+                activity_review_policy_ids.insert(review_policy_id.as_str());
             }
         }
     }
@@ -540,6 +562,13 @@ fn validate_references(contract: &LessonContract) -> Result<(), ContractError> {
             policy.mistake_tag_id.as_str(),
             &mistake_tag_ids,
         )?;
+        if !activity_mistake_tag_ids.contains(policy.mistake_tag_id.as_str()) {
+            return Err(ContractError::PolicyActivityMismatch {
+                answer_policy_id: policy.id.to_string(),
+                reference_kind: "mistake tag",
+                reference_id: policy.mistake_tag_id.to_string(),
+            });
+        }
         ensure_reference(
             "answer policy",
             policy.id.as_str(),
@@ -547,6 +576,13 @@ fn validate_references(contract: &LessonContract) -> Result<(), ContractError> {
             policy.review_policy_id.as_str(),
             &review_policy_ids,
         )?;
+        if !activity_review_policy_ids.contains(policy.review_policy_id.as_str()) {
+            return Err(ContractError::PolicyActivityMismatch {
+                answer_policy_id: policy.id.to_string(),
+                reference_kind: "review policy",
+                reference_id: policy.review_policy_id.to_string(),
+            });
+        }
         for evidence in &policy.feedback.evidence_references {
             ensure_reference(
                 "answer policy",
@@ -574,8 +610,14 @@ fn validate_references(contract: &LessonContract) -> Result<(), ContractError> {
 }
 
 fn validate_assets(contract: &LessonContract) -> Result<(), ContractError> {
+    let mut package_paths = HashSet::new();
     for asset in &contract.lesson.assets {
         validate_asset_path(&asset.package_path)?;
+        if !package_paths.insert(asset.package_path.as_str()) {
+            return Err(ContractError::DuplicateAssetPath {
+                path: asset.package_path.clone(),
+            });
+        }
         require_text("asset.media_type", &asset.media_type)?;
         if asset.byte_length == 0 {
             return Err(ContractError::InvalidAssetLength {
