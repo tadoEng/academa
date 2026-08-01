@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "course_id": "course-academic-english",
+  "module_id": "module-daily-reading",
+  "lesson_id": "lesson-community-gardens",
+  "title": "Unsafe answer-leaking lesson",
+  "objectives": [
+    {
+      "id": "objective-main-idea",
+      "description": "Identify the main claim."
+    }
+  ],
+  "reading_passage": {
+    "id": "passage-community-gardens",
+    "title": "Unsafe fixture",
+    "paragraphs": [
+      {
+        "id": "paragraph-one",
+        "text": "This synthetic text exists only to exercise contract rejection."
+      }
+    ]
+  },
+  "vocabulary": [],
+  "activities": [
+    {
+      "type": "objective_question",
+      "id": "activity-main-idea",
+      "objective_id": "objective-main-idea",
+      "question_id": "question-main-idea",
+      "prompt": "Which option is correct?",
+      "options": [
+        {
+          "id": "option-one",
+          "text": "First option"
+        },
+        {
+          "id": "option-two",
+          "text": "Second option"
+        }
+      ],
+      "accepted_option_ids": [
+        "option-two"
+      ]
+    }
+  ],
+  "production_prompts": [],
+  "mistake_tags": [],
+  "review_policies": [],
+  "assets": [],
+  "provenance": {
+    "source_kind": "sanitized_fixture",
+    "source_reference": "unsafe-answer-leak-fixture",
+    "rights_status": "original_fixture",
+    "human_reviewed": true
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "course_id": "course-academic-english",
+  "module_id": "module-daily-reading",
+  "lesson_id": "lesson-community-gardens",
+  "title": "Community Gardens and Summer Heat",
+  "objectives": [
+    {
+      "id": "objective-main-idea",
+      "description": "Identify the main claim and the qualifier that limits it."
+    }
+  ],
+  "reading_passage": {
+    "id": "passage-community-gardens",
+    "title": "A small experiment in Greenbridge",
+    "paragraphs": [
+      {
+        "id": "paragraph-one",
+        "text": "Greenbridge converted two unused parking areas into community gardens. Volunteers planted shade trees beside vegetables and recorded afternoon temperatures for twelve weeks."
+      },
+      {
+        "id": "paragraph-two",
+        "text": "The garden plots were usually cooler than nearby paved areas, although the difference was modest on windy days. The project suggests that small green spaces can improve local comfort, but it does not prove that they can cool an entire city."
+      }
+    ]
+  },
+  "vocabulary": [
+    {
+      "id": "vocabulary-modest",
+      "term": "modest",
+      "ipa": null,
+      "definition": "limited in size or amount",
+      "source_sentence": "The difference was modest on windy days."
+    },
+    {
+      "id": "vocabulary-convert",
+      "term": "convert",
+      "ipa": null,
+      "definition": "to change something so it serves a different purpose",
+      "source_sentence": "Greenbridge converted two unused parking areas into community gardens."
+    }
+  ],
+  "activities": [
+    {
+      "type": "timed_reading",
+      "id": "activity-timed-reading",
+      "passage_id": "passage-community-gardens",
+      "recommended_duration_seconds": 180
+    },
+    {
+      "type": "objective_question",
+      "id": "activity-main-idea",
+      "objective_id": "objective-main-idea",
+      "question_id": "question-main-idea",
+      "prompt": "Which statement best represents the passage's main claim?",
+      "options": [
+        {
+          "id": "option-citywide-cooling",
+          "text": "Community gardens have been proven to cool an entire city."
+        },
+        {
+          "id": "option-local-comfort",
+          "text": "Small green spaces may improve local comfort, but the evidence has limits."
+        },
+        {
+          "id": "option-wind-removal",
+          "text": "Shade trees remove the cooling effect of wind."
+        }
+      ]
+    },
+    {
+      "type": "vocabulary_review",
+      "id": "activity-vocabulary-review",
+      "vocabulary_entry_ids": [
+        "vocabulary-modest",
+        "vocabulary-convert"
+      ]
+    },
+    {
+      "type": "production",
+      "id": "activity-production",
+      "production_prompt_id": "production-qualifier"
+    },
+    {
+      "type": "mistake_classification",
+      "id": "activity-mistake-classification",
+      "mistake_tag_ids": [
+        "mistake-missed-qualifier"
+      ]
+    },
+    {
+      "type": "scheduled_review",
+      "id": "activity-scheduled-review",
+      "review_policy_id": "review-main-idea-once"
+    }
+  ],
+  "production_prompts": [
+    {
+      "id": "production-qualifier",
+      "objective_id": "objective-main-idea",
+      "prompt": "Write one sentence describing a useful local intervention while clearly limiting the claim."
+    }
+  ],
+  "mistake_tags": [
+    {
+      "id": "mistake-missed-qualifier",
+      "label": "Missed qualifier"
+    }
+  ],
+  "review_policies": [
+    {
+      "id": "review-main-idea-once",
+      "label": "Retry the main-idea question after one day"
+    }
+  ],
+  "assets": [],
+  "provenance": {
+    "source_kind": "sanitized_fixture",
+    "source_reference": "original-community-gardens-fixture-v1",
+    "rights_status": "original_fixture",
+    "human_reviewed": true
+  }
+}
